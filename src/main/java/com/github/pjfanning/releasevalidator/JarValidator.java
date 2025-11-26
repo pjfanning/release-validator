@@ -41,12 +41,25 @@ class JarValidator implements Callable<Integer> {
                     issues.add(result);
                 }
             }
-            if (!issues.isEmpty()) {
-                for  (String issue : issues) {
-                    System.err.println(issue);
+        }
+        File[] jarFiles = directory.listFiles(pathname ->
+                !pathname.isDirectory() && pathname.toPath().endsWith(".jar"));
+        if (jarFiles == null) {
+            System.err.println("WARN: No Jar files found in directory " + directory);
+        } else {
+            for (File jarFile : jarFiles) {
+                String result = JarCheck.checkJar(jarFile);
+                if (result != null) {
+                    issues.add(result);
                 }
-                return CommandLine.ExitCode.SOFTWARE;
             }
+        }
+
+        if (!issues.isEmpty()) {
+            for  (String issue : issues) {
+                System.err.println(issue);
+            }
+            return CommandLine.ExitCode.SOFTWARE;
         }
         return CommandLine.ExitCode.OK;
     }
