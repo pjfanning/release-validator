@@ -1,16 +1,10 @@
 package com.github.pjfanning.releasevalidator;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -29,25 +23,28 @@ class JarValidator implements Callable<Integer> {
         } else if  (!directory.isDirectory()) {
             throw new IllegalArgumentException("Provided directory is not a directory");
         }
-        File[] pomFiles = directory.listFiles(pathname ->
-                !pathname.isDirectory() && pathname.toPath().endsWith(".pom"));
+        System.out.println("Validating " + directory);
+        File[] pomFiles = directory.listFiles(f ->
+            !f.isDirectory() && f.getName().endsWith(".pom"));
         ArrayList<String> issues = new ArrayList<>();
-        if (pomFiles == null) {
+        if (pomFiles == null || pomFiles.length == 0) {
             System.err.println("WARN: No POM files found in directory " + directory);
         } else {
             for (File pomFile : pomFiles) {
+                System.out.println("checking pom " + pomFile);
                 String result = checkPomFile(pomFile);
                 if (result != null) {
                     issues.add(result);
                 }
             }
         }
-        File[] jarFiles = directory.listFiles(pathname ->
-                !pathname.isDirectory() && pathname.toPath().endsWith(".jar"));
-        if (jarFiles == null) {
+        File[] jarFiles = directory.listFiles(f ->
+                !f.isDirectory() && f.getName().endsWith(".jar"));
+        if (jarFiles == null || jarFiles.length == 0) {
             System.err.println("WARN: No Jar files found in directory " + directory);
         } else {
             for (File jarFile : jarFiles) {
+                System.out.println("checking jar " + jarFile);
                 String result = JarCheck.checkJar(jarFile);
                 if (result != null) {
                     issues.add(result);

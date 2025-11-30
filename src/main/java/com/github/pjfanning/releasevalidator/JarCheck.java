@@ -13,7 +13,6 @@ class JarCheck {
         try (JarFile jarFile = new JarFile(file)) {
             Manifest man = jarFile.getManifest();
             Attributes attrs = man.getMainAttributes();
-            System.out.println(attrs.get(Attributes.Name.MANIFEST_VERSION));
             Enumeration<JarEntry> entries = jarFile.entries();
             boolean moduleInfoClassFound = false;
             while (!moduleInfoClassFound && entries.hasMoreElements()) {
@@ -23,7 +22,7 @@ class JarCheck {
                 }
             }
             if (!moduleInfoClassFound) {
-                return String.format("No module-info.class found in %s", file.getAbsolutePath());
+                return String.format("No module-info.class found in %s", file);
             }
         } catch (Exception e) {
             return String.format("Failed to check jar %s: %s", file, e);
